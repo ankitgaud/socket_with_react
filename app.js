@@ -38,4 +38,16 @@ const getApiAndEmit = socket => {
   socket.emit("FromAPI", response);
 };
 
+let name_spaces = ["namespace", "namespace1"]
+
+var nsp = io.of(`/${name_spaces[0]}`);
+nsp.on('connection', function(socket) {
+    console.log("someone connected!")
+   socket.on('text2', function(data) {
+    nsp.emit('text3', data);
+ })
+});
+
+
+
 server.listen(port, () => console.log(`Listening on port ${port}`));
