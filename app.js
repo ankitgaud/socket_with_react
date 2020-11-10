@@ -3,6 +3,16 @@ const http = require("http");
 const socketIo = require("socket.io");
 const cors = require('cors')
 const bodyParser = require('body-parser') 
+const redis = require("redis");
+let redis_port = 6379;
+const client = redis.createClient(redis_port);
+ 
+client.on("error", function(error) {
+  console.error(error);
+});
+client.on("connect", function() {
+  console.log("Redis Connected!!");
+});
 
 
 const port = process.env.PORT || 4001;
@@ -43,11 +53,19 @@ let name_spaces = ["namespace", "namespace1"]
 var nsp = io.of(`/${name_spaces[0]}`);
 nsp.on('connection', function(socket) {
     console.log("someone connected!")
-   socket.on('text2', function(data) {
-     console.log("socket data", data)
-    nsp.emit('text3', data);
- })
-});
+    client.get(name_spaces[0], (err, data)=>{
+      if (err) throw err;
+      if (data != null){
+          nsp.emit('text3', data)
+      }else{
+          return
+      }
+    })
+    socket.on('text2', function(data) {
+      client.setex(name_spaces[0],360000,JSON.stringify(data))
+      nsp.emit('text3', data);
+    })
+  });
 
 
 
