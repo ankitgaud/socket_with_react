@@ -44,6 +44,7 @@ var nsp = io.of(`/${name_spaces[0]}`);
 nsp.on('connection', function(socket) {
     console.log("someone connected!")
    socket.on('text2', function(data) {
+     console.log("socket data", data)
     nsp.emit('text3', data);
  })
 });
